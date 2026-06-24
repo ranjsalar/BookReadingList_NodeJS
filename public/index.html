@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Reading List | SCSJ4383</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #f5f0e8;
+      --surface:  #faf7f2;
+      --card:     #ffffff;
+      --border:   #e2d9cc;
+      --accent:   #7c4f2e;
+      --accent2:  #b8860b;
+      --green:    #2d6a4f;
+      --red:      #c0392b;
+      --blue:     #1a5276;
+      --text:     #2c2416;
+      --muted:    #7d6b55;
+      --radius:   10px;
+      --font:     'Inter', sans-serif;
+      --serif:    'Lora', serif;
+    }
+
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Header ── */
+    header {
+      background: var(--accent);
+      padding: 20px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 14px; }
+    .logo-icon { font-size: 28px; }
+    .logo h1 { font-family: var(--serif); font-size: 22px; color: #fff; font-weight: 600; }
+    .logo span { font-size: 12px; color: rgba(255,255,255,.65); }
+    .header-badge { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: 12px; color: #fff; }
+
+    /* ── Layout ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 28px 20px; display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
+
+    /* ── Panel ── */
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+    .panel-title { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 13px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
+    input, select {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 7px; padding: 8px 11px; color: var(--text);
+      font-family: var(--font); font-size: 14px; outline: none; transition: border-color .2s;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    select option { background: #fff; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 16px; border: none; border-radius: 7px; font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .18s; }
+    .btn-primary { background: var(--accent); color: #fff; width: 100%; }
+    .btn-primary:hover { background: #6b4226; }
+    .btn-sm { padding: 4px 9px; font-size: 12px; border-radius: 5px; }
+    .btn-edit    { background: rgba(26,82,118,.1);  color: var(--blue);  border: 1px solid rgba(26,82,118,.25); }
+    .btn-delete  { background: rgba(192,57,43,.1);  color: var(--red);   border: 1px solid rgba(192,57,43,.25); }
+    .btn-advance { background: rgba(45,106,79,.1);  color: var(--green); border: 1px solid rgba(45,106,79,.25); }
+    .btn-edit:hover    { background: rgba(26,82,118,.2); }
+    .btn-delete:hover  { background: rgba(192,57,43,.2); }
+    .btn-advance:hover { background: rgba(45,106,79,.2); }
+
+    /* ── Stats ── */
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 18px; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
+    .stat-number { font-size: 26px; font-weight: 700; font-family: var(--serif); }
+    .stat-label  { font-size: 10px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── Filter tabs ── */
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-btn { padding: 5px 13px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .15s; }
+    .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ── Book cards ── */
+    #book-list { display: flex; flex-direction: column; gap: 10px; }
+    .book-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 18px; display: flex; align-items: flex-start; gap: 14px; transition: border-color .2s; }
+    .book-card:hover { border-color: #c8b8a2; }
+
+    .book-spine { width: 6px; min-width: 6px; height: 100%; border-radius: 3px; align-self: stretch; min-height: 60px; }
+    .spine-want   { background: #aaa; }
+    .spine-reading { background: var(--accent2); }
+    .spine-done   { background: var(--green); }
+
+    .book-body { flex: 1; min-width: 0; }
+    .book-title  { font-family: var(--serif); font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+    .book-author { font-size: 13px; color: var(--muted); margin-bottom: 8px; font-style: italic; }
+    .book-meta   { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+    .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .tag-genre   { background: rgba(124,79,46,.08);  color: var(--accent); border: 1px solid rgba(124,79,46,.2); }
+    .tag-want    { background: rgba(150,150,150,.1); color: #666;          border: 1px solid rgba(150,150,150,.25); }
+    .tag-reading { background: rgba(184,134,11,.1);  color: var(--accent2);border: 1px solid rgba(184,134,11,.25); }
+    .tag-done    { background: rgba(45,106,79,.1);   color: var(--green);  border: 1px solid rgba(45,106,79,.25); }
+    .tag-rating  { background: rgba(26,82,118,.08);  color: var(--blue);   border: 1px solid rgba(26,82,118,.2); }
+
+    .book-actions { display: flex; gap: 5px; margin-left: auto; flex-shrink: 0; flex-direction: column; }
+
+    /* ── API info panel ── */
+    .api-pill { display: inline-flex; align-items: center; font-size: 10px; font-family: monospace; padding: 2px 7px; border-radius: 4px; font-weight: 700; letter-spacing: .04em; }
+    .api-get  { background: rgba(45,106,79,.12); color: var(--green); }
+    .api-post { background: rgba(26,82,118,.12); color: var(--blue); }
+    .api-put  { background: rgba(184,134,11,.12);color: var(--accent2); }
+    .api-del  { background: rgba(192,57,43,.12); color: var(--red); }
+    .api-patch{ background: rgba(124,79,46,.12); color: var(--accent); }
+
+    /* ── Edit Modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; width: 440px; max-width: 95vw; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .modal-title { font-family: var(--serif); font-size: 17px; font-weight: 600; }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+
+    /* ── Toast ── */
+    #toast { position: fixed; bottom: 24px; right: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 11px 16px; font-size: 14px; font-weight: 500; transform: translateY(70px); opacity: 0; transition: all .3s; z-index: 200; }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-color: var(--green); color: var(--green); }
+    #toast.error   { border-color: var(--red);   color: var(--red); }
+
+    .empty-state { text-align: center; padding: 44px 20px; color: var(--muted); }
+    .empty-state .icon { font-size: 38px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📖</div>
+    <div>
+      <h1>Book Reading List</h1>
+      <span>Express.js + Node.js</span>
+    </div>
+  </div>
+  <div class="header-badge">SCSJ4383 Assignment 2</div>
+</header>
+
+<main>
+  <!-- LEFT: Add Book Form -->
+  <aside>
+    <div class="panel">
+      <div class="panel-title">
+        <span class="api-pill api-post">POST</span>
+        Add a Book
+      </div>
+      <form id="add-form" autocomplete="off">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="title" placeholder="e.g. The Great Gatsby" required/>
+        </div>
+        <div class="form-group">
+          <label>Author</label>
+          <input type="text" id="author" placeholder="e.g. F. Scott Fitzgerald"/>
+        </div>
+        <div class="form-group">
+          <label>Genre</label>
+          <input type="text" id="genre" placeholder="e.g. Classic Fiction"/>
+        </div>
+        <div class="form-group">
+          <label>Reading Status</label>
+          <select id="status">
+            <option value="WantToRead">Want to Read</option>
+            <option value="Reading">Reading</option>
+            <option value="Finished">Finished</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Rating (1–5)</label>
+          <select id="rating">
+            <option value="">Not rated</option>
+            <option value="1">⭐ 1</option>
+            <option value="2">⭐⭐ 2</option>
+            <option value="3">⭐⭐⭐ 3</option>
+            <option value="4">⭐⭐⭐⭐ 4</option>
+            <option value="5">⭐⭐⭐⭐⭐ 5</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">+ Add to Library</button>
+      </form>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <div class="panel-title">REST Endpoints</div>
+      <div style="font-family:monospace;font-size:11px;line-height:2.2;color:var(--muted)">
+        <span class="api-pill api-get">GET</span>&nbsp; /api/books<br>
+        <span class="api-pill api-get">GET</span>&nbsp; /api/books/:id<br>
+        <span class="api-pill api-post">POST</span>&nbsp; /api/books<br>
+        <span class="api-pill api-put">PUT</span>&nbsp; /books/:id<br>
+        <span class="api-pill api-del">DEL</span>&nbsp; /books/:id<br>
+        <span class="api-pill api-patch">PATCH</span>&nbsp; /books/:id/advance
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT: Book List -->
+  <section>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-total" style="color:var(--accent)">0</div>
+        <div class="stat-label">Total Books</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-reading" style="color:var(--accent2)">0</div>
+        <div class="stat-label">Reading</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-done" style="color:var(--green)">0</div>
+        <div class="stat-label">Finished</div>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-btn active" data-filter="">All Books</button>
+      <button class="filter-btn" data-filter="WantToRead">Want to Read</button>
+      <button class="filter-btn" data-filter="Reading">Reading</button>
+      <button class="filter-btn" data-filter="Finished">Finished</button>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="panel-title" style="margin:0">
+        <span class="api-pill api-get">GET</span> Library
+      </div>
+      <button class="btn btn-sm" onclick="loadBooks()"
+        style="background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:12px">↻ Refresh</button>
+    </div>
+
+    <div id="book-list"></div>
+  </section>
+</main>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">✏️ Edit Book</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <form id="edit-form">
+      <input type="hidden" id="edit-id"/>
+      <div class="form-group"><label>Title</label><input type="text" id="edit-title" required/></div>
+      <div class="form-group"><label>Author</label><input type="text" id="edit-author"/></div>
+      <div class="form-group"><label>Genre</label><input type="text" id="edit-genre"/></div>
+      <div class="form-group">
+        <label>Reading Status</label>
+        <select id="edit-status">
+          <option value="WantToRead">Want to Read</option>
+          <option value="Reading">Reading</option>
+          <option value="Finished">Finished</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Rating (1–5)</label>
+        <select id="edit-rating">
+          <option value="">Not rated</option>
+          <option value="1">⭐ 1</option>
+          <option value="2">⭐⭐ 2</option>
+          <option value="3">⭐⭐⭐ 3</option>
+          <option value="4">⭐⭐⭐⭐ 4</option>
+          <option value="5">⭐⭐⭐⭐⭐ 5</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button type="submit" class="btn btn-primary" style="flex:1">Save Changes</button>
+        <button type="button" class="btn btn-sm btn-delete" onclick="closeModal()" style="padding:9px 16px;font-size:13px">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let currentFilter = '';
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+    t.className = `show ${type}`;
+    setTimeout(() => t.className = '', 2800);
+  }
+
+  function statusLabel(s) {
+    return { WantToRead: 'Want to Read', Reading: 'Reading', Finished: 'Finished' }[s] || s;
+  }
+  function statusTagClass(s) {
+    return { WantToRead: 'tag-want', Reading: 'tag-reading', Finished: 'tag-done' }[s] || '';
+  }
+  function spineClass(s) {
+    return { WantToRead: 'spine-want', Reading: 'spine-reading', Finished: 'spine-done' }[s] || '';
+  }
+  function stars(r) { return r ? '⭐'.repeat(r) : ''; }
+  function esc(s) {
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(s || ''));
+    return d.innerHTML;
+  }
+
+  function updateStats(books) {
+    document.getElementById('stat-total').textContent   = books.length;
+    document.getElementById('stat-reading').textContent = books.filter(b => b.status === 'Reading').length;
+    document.getElementById('stat-done').textContent    = books.filter(b => b.status === 'Finished').length;
+  }
+
+  function renderBooks(books) {
+    const list = document.getElementById('book-list');
+    if (!books.length) {
+      list.innerHTML = `<div class="empty-state"><div class="icon">📚</div><p>No books here yet. Add one!</p></div>`;
+      return;
+    }
+    list.innerHTML = books.map(b => `
+      <div class="book-card">
+        <div class="book-spine ${spineClass(b.status)}"></div>
+        <div class="book-body">
+          <div class="book-title">${esc(b.title)}</div>
+          <div class="book-author">${b.author ? esc(b.author) : '<em style="color:var(--muted)">Unknown author</em>'}</div>
+          <div class="book-meta">
+            ${b.genre ? `<span class="tag tag-genre">${esc(b.genre)}</span>` : ''}
+            <span class="tag ${statusTagClass(b.status)}">${statusLabel(b.status)}</span>
+            ${b.rating ? `<span class="tag tag-rating">${stars(b.rating)}</span>` : ''}
+          </div>
+        </div>
+        <div class="book-actions">
+          <button class="btn btn-sm btn-advance" onclick="advanceStatus(${b.id})">▶ Advance</button>
+          <button class="btn btn-sm btn-edit"    onclick='openEdit(${JSON.stringify(b)})'>Edit</button>
+          <button class="btn btn-sm btn-delete"  onclick="deleteBook(${b.id})">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── FUNCTIONALITY 1 (REST GET): Load all books ────────────
+  async function loadBooks() {
+    try {
+      const url  = currentFilter ? `/api/books?status=${currentFilter}` : '/api/books';
+      const res  = await fetch(url);
+      const json = await res.json();
+      let books  = json.data || [];
+      if (currentFilter) books = books.filter(b => b.status === currentFilter);
+      renderBooks(books);
+      updateStats(json.data || []);
+    } catch (e) { showToast('Failed to load books.', 'error'); }
+  }
+
+  // ── FUNCTIONALITY 2 (REST POST): Add book ─────────────────
+  document.getElementById('add-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+      title  : document.getElementById('title').value.trim(),
+      author : document.getElementById('author').value.trim(),
+      genre  : document.getElementById('genre').value.trim(),
+      status : document.getElementById('status').value,
+      rating : document.getElementById('rating').value
+    };
+    try {
+      const res  = await fetch('/api/books', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const json = await res.json();
+      if (json.success) { showToast(`"${body.title}" added to your library!`); e.target.reset(); loadBooks(); }
+      else showToast(json.message, 'error');
+    } catch (err) { showToast('Failed to add book.', 'error'); }
+  });
+
+  // ── FUNCTIONALITY 3: Edit book ────────────────────────────
+  function openEdit(book) {
+    document.getElementById('edit-id').value     = book.id;
+    document.getElementById('edit-title').value  = book.title;
+    document.getElementById('edit-author').value = book.author || '';
+    document.getElementById('edit-genre').value  = book.genre  || '';
+    document.getElementById('edit-status').value = book.status;
+    document.getElementById('edit-rating').value = book.rating || '';
+    document.getElementById('edit-modal').classList.add('open');
+  }
+  function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
+
+  document.getElementById('edit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id   = document.getElementById('edit-id').value;
+    const body = {
+      title  : document.getElementById('edit-title').value.trim(),
+      author : document.getElementById('edit-author').value.trim(),
+      genre  : document.getElementById('edit-genre').value.trim(),
+      status : document.getElementById('edit-status').value,
+      rating : document.getElementById('edit-rating').value
+    };
+    try {
+      const res  = await fetch(`/books/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const json = await res.json();
+      if (json.success) { showToast(json.message); closeModal(); loadBooks(); }
+      else showToast(json.message, 'error');
+    } catch (err) { showToast('Failed to update book.', 'error'); }
+  });
+
+  // ── FUNCTIONALITY 4: Delete book ─────────────────────────
+  async function deleteBook(id) {
+    if (!confirm('Remove this book from your library?')) return;
+    try {
+      const res  = await fetch(`/books/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) { showToast('Book removed from your library.'); loadBooks(); }
+    } catch (err) { showToast('Failed to delete book.', 'error'); }
+  }
+
+  // ── FUNCTIONALITY 5: Advance reading status ───────────────
+  async function advanceStatus(id) {
+    try {
+      const res  = await fetch(`/books/${id}/advance`, { method: 'PATCH' });
+      const json = await res.json();
+      if (json.success) { showToast(json.message); loadBooks(); }
+    } catch (err) { showToast('Failed to update status.', 'error'); }
+  }
+
+  // ── Filter tabs ───────────────────────────────────────────
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      loadBooks();
+    });
+  });
+
+  // Close modal on overlay click
+  document.getElementById('edit-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  loadBooks();
+</script>
+</body>
+</html>
