@@ -32,10 +32,10 @@ Reading status cycles: **Want to Read → Reading → Finished → Want to Read*
 
 ```bash
 # 1. Clone the repo
-git clone <your-github-repository-link>
+git clone https://github.com/ranjsalar/BookReadingList_NodeJS.git
 
 # 2. Go into the folder
-cd book-reading-list
+cd BookReadingList_NodeJS
 
 # 3. Install dependencies
 npm install
